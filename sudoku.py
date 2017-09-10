@@ -8,13 +8,11 @@
 
 def display(values):
     """Вывод Судоку """
-    width = 2
-    line = '+'.join(['-' * (width * 3)] * 3)
-    for row in range(9):
-        print(''.join(values[row][col].center(width) + ('|' if str(col) in '25' else '') for col in range(9)))
-        if str(row) in '25':
-            print(line)
-    print()
+    for i in range(9):
+        print(' '.join(values[i][0:3]) + ' | ' + ' '.join(values[i][3:6]) + 
+              ' | ' + ' '.join(values[i][6:9]))
+        if i == 2 or i == 5:
+            print('------+-------+------')
 
 
 def group(values, n):
@@ -114,5 +112,6 @@ if __name__ == '__main__':
     for fname in ['puzzle1.txt', 'puzzle2.txt', 'puzzle3.txt']:
         grid = read_sudoku(fname)
         display(grid)
+        print(grid)
         solution = solve(grid)
         display(solution)
