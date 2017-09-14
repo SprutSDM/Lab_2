@@ -1,4 +1,4 @@
-﻿import time
+﻿import time, random
 
 
 def read_sudoku(filename):
@@ -9,7 +9,7 @@ def read_sudoku(filename):
     return grid
 
 
-def display(values):
+def display(values): # Я изменил вывод судоку
     """Вывод Судоку """
     for i in range(9):
         print(' '.join(values[i][0:3]) + ' | ' + ' '.join(values[i][3:6]) + 
@@ -121,6 +121,7 @@ def find_possible_values(grid, pos):
 
 
 def solve(grid):
+    # rand необходим для рандомного выбора пустого места
     """ Решение пазла, заданного в grid """
     """ Как решать Судоку?
         1. Найти свободную позицию
@@ -129,21 +130,26 @@ def solve(grid):
             3.1. Поместить это значение на эту позицию
             3.2. Продолжить решать оставшуюся часть пазла
     """
-    position = find_empty_positions(grid)
-    if position == (-1, -1):
+    position = find_empty_positions(grid) 
+    if position == (-1, -1): 
         solution = []
-        for elem in grid:
+        for elem in grid: # Копирование ответа
             solution.append([elements for elements in elem])
-        return solution
+        return solution # Решили судоку и возвращаем ответ
+    
     values = find_possible_values(grid, position)
     #print(values)
-    for elem in values:
-        grid[position[0]][position[1]] = elem
-        solution = solve(grid)
-        grid[position[0]][position[1]] = '.'
+    n = len(values)
+    for i in range(n):
+        elem = random.choice(values) # Выбираем рандомное свободное число (необходимо для получения различных решений при запуске от пустого судоку)
+        values.remove(elem)
+        grid[position[0]][position[1]] = elem # Ставим выбранное число
+        solution = solve(grid) # Решаем задачу для следующего свободного места
+        grid[position[0]][position[1]] = '.' # Ставим обратно свободное место (в случае если решение выше было не успешным)
         if solution != None:
             return solution
-    return None
+    return None # В случае если решить судоку не получилось
+
 
 def check_solution(solution):
     """ Если решение solution верно, то вернуть True, в противном случае False """
@@ -153,22 +159,34 @@ def check_solution(solution):
     for i in range(len(solution)):
         for j in range(len(solution[i])):
             elem = solution[i][j]
-            if elem not in row[i]:
-                print('row')
+            if elem not in row[i]: # Если этот элемент уже удалили раньше, то решение не правильное
                 return False
-            row[i].remove(elem)
+            row[i].remove(elem) # Удаляем элемент который рассматриваем в текущий момент
             
             if elem not in col[j]:
-                print('col')
                 return False
             col[j].remove(elem)
             
             if elem not in block[i // 3 * 3 + j // 3]:
-                print('block')
                 return False
             block[i // 3 * 3 + j // 3].remove(elem)
     return True
 
+
+def generate_sudoku(N):
+    N = min(N, 81) # Если введено число большее, чем количество ячеек
+    grid = [['.' for i in range(9)] for i in range(9)]
+    grid = solve(grid)
+
+    places = [(i, j) for i in range(9) for j in range(9)]
+    # Данный кусок кода уничтожает рандомные цифры в сгенерированном поле  
+    for q in range(81 - N): 
+        place = random.choice(places)
+        places.remove(place) # Убираем уже пустую ячейку из списка
+        grid[place[0]][place[1]] = '.'
+    return grid
+    
+    
 
 if __name__ == '__main__':
     for fname in ['puzzle1.txt', 'puzzle2.txt', 'puzzle3.txt']:
