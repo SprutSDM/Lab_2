@@ -9,7 +9,7 @@ def read_sudoku(filename):
     return grid
 
 
-def display(values):  # Я изменил вывод судоку
+def display(values):
     """Вывод Судоку """
     for i in range(9):
         print(' '.join(values[i][0:3]) + ' | ' + ' '.join(values[i][3:6]) +
@@ -98,16 +98,12 @@ def find_possible_values(grid, pos):
     True
     """
     s = set([str(i) for i in range(1, 10)])
-    r = get_row(grid, pos)
-    c = get_col(grid, pos)
-    b = get_block(grid, pos)
-    for elem in r:
-        if elem in s:
-            s.remove(elem)
-    for elem in c:
-        if elem in s:
-            s.remove(elem)
-    for elem in b:
+    r = set(get_row(grid, pos))
+    c = set(get_col(grid, pos))
+    b = set(get_block(grid, pos))
+    rcb = r.union(c).union(b)
+    
+    for elem in rcb:
         if elem in s:
             s.remove(elem)
     return list(s)
@@ -116,10 +112,7 @@ def find_possible_values(grid, pos):
 def solve(grid):
     position = find_empty_positions(grid)
     if position == (-1, -1):
-        solution = []
-        for elem in grid:  # Копирование ответа
-            solution.append([elements for elements in elem])
-        return solution  # Решили судоку и возвращаем ответ
+        return grid  # Решили судоку и возвращаем ответ
 
     values = find_possible_values(grid, position)
     n = len(values)
@@ -128,9 +121,9 @@ def solve(grid):
         values.remove(elem)
         grid[position[0]][position[1]] = elem  # Ставим выбранное число
         solution = solve(grid)  # Решаем задачу для следующего свободного места
-        grid[position[0]][position[1]] = '.'  # Ставим обратно свободное место (в случае если решение выше было не успешным)
         if solution is not None:
             return solution
+    grid[position[0]][position[1]] = '.'  # Ставим обратно свободное место (в случае если решение выше было не успешным)
     return None  # В случае если решить судоку не получилось
 
 
